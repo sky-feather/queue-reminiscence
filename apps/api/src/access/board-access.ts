@@ -13,6 +13,7 @@ import { toBoardSummaryFromRow, type BoardSummary } from "../admin/board-managem
 import { loadBoardWithResourceContext, lockBoardRow } from "../boards/board-context";
 import { createTokenPreview, generateOpaqueToken, hashOpaqueToken } from "../security/tokens";
 import { buildPublicAccessUrl } from "./access-url";
+import { encryptAccessCode } from "./credential-ciphertext";
 
 export interface RotatedBoardAccessCredential {
   id: string;
@@ -141,6 +142,7 @@ export function createDbBoardAccessService(db: Database, config: AppConfig): Boa
             status: "active",
             expiresAt: null,
             createdByAdminUserId: adminUserId,
+            accessCodeCiphertext: encryptAccessCode(accessCode, config.tokenHmacSecret),
           })
           .returning();
 

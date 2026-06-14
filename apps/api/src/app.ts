@@ -26,6 +26,9 @@ import { publicAccessRoutes } from "./routes/public-access";
 import { publicBoardsRoutes } from "./routes/public-boards";
 import { qrRoutes } from "./routes/qr";
 import { healthRoutes, isDatabaseReachable } from "./routes/health";
+import { displayRoutes } from "./routes/display";
+import type { DisplayDeviceResolver } from "./display/display-devices";
+import type { DisplayStateService } from "./display/display-state";
 
 export interface AppDeps {
   config?: AppConfig;
@@ -38,6 +41,8 @@ export interface AppDeps {
   publicBoardReadService?: PublicBoardReadService;
   queueMutationService?: QueueMutationService;
   rateLimiter?: RateLimiter;
+  displayDeviceResolver?: DisplayDeviceResolver;
+  displayStateService?: DisplayStateService;
 }
 
 function loadAppConfig(): AppConfig {
@@ -121,7 +126,15 @@ export function createApp(deps: AppDeps = {}) {
     .use(adminBoardsRoutes(adminRouteDeps))
     .use(publicAccessRoutes({ config, publicSessionService, rateLimiter }))
     .use(publicBoardsRoutes({ config, publicBoardReadService, queueMutationService }))
-    .use(qrRoutes({ config, db }));
+    .use(qrRoutes({ config, db }))
+    .use(
+      displayRoutes({
+        config,
+        db,
+        displayDeviceResolver: deps.displayDeviceResolver,
+        displayStateService: deps.displayStateService,
+      }),
+    );
 }
 
 export function createTestApp(deps: AppDeps = {}) {
