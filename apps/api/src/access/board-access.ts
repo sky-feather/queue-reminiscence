@@ -12,6 +12,7 @@ import { assertCanOperateBoard, type AdminRbacContext } from "../auth/rbac";
 import { toBoardSummaryFromRow, type BoardSummary } from "../admin/board-management";
 import { loadBoardWithResourceContext, lockBoardRow } from "../boards/board-context";
 import { createTokenPreview, generateOpaqueToken, hashOpaqueToken } from "../security/tokens";
+import { buildPublicAccessUrl } from "./access-url";
 
 export interface RotatedBoardAccessCredential {
   id: string;
@@ -35,10 +36,6 @@ export interface BoardAccessService {
     adminUserId: string,
     boardId: string,
   ): Promise<RotateBoardAccessResult>;
-}
-
-function accessUrlFor(config: AppConfig, accessCode: string): string {
-  return new URL(`/q/${accessCode}`, config.publicAppUrl).toString();
 }
 
 async function revokeActiveCredentials(
@@ -165,7 +162,7 @@ export function createDbBoardAccessService(db: Database, config: AppConfig): Boa
         board: toBoardSummaryFromRow(mutation.board, context.organizationId),
         credential: {
           id: mutation.credential.id,
-          accessUrl: accessUrlFor(config, accessCode),
+          accessUrl: buildPublicAccessUrl(config, accessCode),
           tokenPreview: mutation.credential.tokenPreview,
           version: mutation.credential.version,
           expiresAt: mutation.credential.expiresAt,
