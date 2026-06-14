@@ -24,6 +24,7 @@ import { adminOrganizationsRoutes } from "./routes/admin-organizations";
 import { adminVenuesRoutes } from "./routes/admin-venues";
 import { publicAccessRoutes } from "./routes/public-access";
 import { publicBoardsRoutes } from "./routes/public-boards";
+import { qrRoutes } from "./routes/qr";
 import { healthRoutes, isDatabaseReachable } from "./routes/health";
 
 export interface AppDeps {
@@ -119,7 +120,8 @@ export function createApp(deps: AppDeps = {}) {
     .use(adminVenuesRoutes(adminRouteDeps))
     .use(adminBoardsRoutes(adminRouteDeps))
     .use(publicAccessRoutes({ config, publicSessionService, rateLimiter }))
-    .use(publicBoardsRoutes({ config, publicBoardReadService, queueMutationService }));
+    .use(publicBoardsRoutes({ config, publicBoardReadService, queueMutationService }))
+    .use(qrRoutes({ config, db }));
 }
 
 export function createTestApp(deps: AppDeps = {}) {
