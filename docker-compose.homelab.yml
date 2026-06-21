@@ -1,0 +1,77 @@
+name: queue-reminiscence
+# Homelab overlay — app services only; no Postgres, no Traefik.
+#
+# Usage (standalone — external Postgres required):
+#   docker compose -f docker-compose.homelab.yml up -d
+#
+# Usage (overlay on top of dev compose for config validation):
+#   docker compose -f docker-compose.yml -f docker-compose.homelab.yml config
+#
+# Prerequisites:
+#   - External PostgreSQL with DATABASE_URL set in .env
+#   - Set TRUST_PROXY=true in .env when Traefik terminates TLS
+#   - Set PUBLIC_APP_URL / ADMIN_APP_URL to your public hostnames in .env
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: qr-api
+    env_file: .env
+    expose:
+      - "3002"
+    restart: unless-stopped
+    command: >
+      sh -c 'bun run --cwd packages/db db:migrate && bun run apps/api/src/index.ts'
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'bun -e "const r=await fetch(''http://localhost:3002/healthz'');process.exit(r.ok?0:1)"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # Traefik labels — uncomment and set your hostnames:
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.qr-api.rule=Host(`queue-api.example.com`)"
+    #   - "traefik.http.routers.qr-api.entrypoints=websecure"
+    #   - "traefik.http.routers.qr-api.tls=true"
+    #   - "traefik.http.services.qr-api.loadbalancer.server.port=3002"
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin-web/Dockerfile
+    container_name: qr-admin
+    env_file: .env
+    expose:
+      - "3001"
+    restart: unless-stopped
+    # Traefik labels — uncomment and set your hostnames:
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.qr-admin.rule=Host(`queue-admin.example.com`)"
+    #   - "traefik.http.routers.qr-admin.entrypoints=websecure"
+    #   - "traefik.http.routers.qr-admin.tls=true"
+    #   - "traefik.http.services.qr-admin.loadbalancer.server.port=3001"
+
+  display:
+    build:
+      context: .
+      dockerfile: apps/public-web/Dockerfile
+    container_name: qr-display
+    env_file: .env
+    expose:
+      - "3000"
+    restart: unless-stopped
+    # Traefik labels — uncomment and set your hostnames:
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.qr-display.rule=Host(`queue.example.com`)"
+    #   - "traefik.http.routers.qr-display.entrypoints=websecure"
+    #   - "traefik.http.routers.qr-display.tls=true"
+    #   - "traefik.http.services.qr-display.loadbalancer.server.port=3000"

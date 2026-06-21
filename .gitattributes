@@ -1,0 +1,16 @@
+# Enforce LF line endings for all text files on every platform.
+# This overrides a developer's core.autocrlf=true so Windows checkouts get LF
+# working-tree files, keeping tooling (Prettier, ESLint, Bun) consistent with CI.
+* text=auto eol=lf
+
+# Binary file types git might misdetect — never normalize these.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary

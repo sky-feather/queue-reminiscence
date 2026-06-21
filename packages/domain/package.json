@@ -1,0 +1,11 @@
+{
+  "name": "@queue-reminiscence/domain",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "echo \"@queue-reminiscence/domain placeholder\""
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": [
+    "eslint.config.js",
+    "apps/**/*.js",
+    "apps/**/*.ts",
+    "packages/**/*.js",
+    "packages/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".svelte-kit",
+    "build",
+    "dist",
+    "coverage",
+    "apps/public-web",
+    "apps/admin-web"
+  ]
+}
